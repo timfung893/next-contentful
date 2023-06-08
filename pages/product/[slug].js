@@ -1,9 +1,4 @@
-import * as contentful from 'contentful';
-
-var client = contentful.createClient({
-    space: process.env.SPACE_ID,
-    accessToken: process.env.CONTENT_DELIVERY_TOKEN
-})
+import * as contentful from '../../utils/contentful';
 
 export default function ProductPage(props) {
     console.log('props', props);
@@ -18,7 +13,7 @@ export default function ProductPage(props) {
 }
 
 export async function getStaticPaths() {
-    const products = await client.getEntries({
+    const products = await contentful.client.getEntries({
         content_type: 'product'
     });
     const paths = products.items.map((product) => ({
@@ -37,13 +32,15 @@ export async function getStaticPaths() {
 export async function getStaticProps(context) {
     // get data
     console.log('context: ', context.params);
+    const client = context.preview 
+        ? contentful.previewClient 
+        : contentful.client;
     
     const product = await client.getEntries({
         content_type: 'product',
         limit: 1,
         "fields.slug": context.params.slug
     });
-    console.log('products: ', product);
     
     return {
         props: {
